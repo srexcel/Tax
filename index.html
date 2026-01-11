@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Recuperación de IVA - Demo Interactivo</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e14;
+            --bg-secondary: #111820;
+            --bg-tertiary: #1a2332;
+            --accent-green: #00ff9d;
+            --accent-blue: #00b4ff;
+            --accent-yellow: #ffd700;
+            --accent-red: #ff4757;
+            --accent-purple: #a855f7;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #484f58;
+            --border-color: #30363d;
+            --glow-green: 0 0 20px rgba(0, 255, 157, 0.3);
+            --glow-blue: 0 0 20px rgba(0, 180, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(0, 255, 157, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 157, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(10, 14, 20, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--bg-primary);
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .logo-text span {
+            color: var(--accent-green);
+        }
+
+        nav ul {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--accent-green);
+        }
+
+        /* Main content */
+        main {
+            position: relative;
+            z-index: 1;
+            padding-top: 80px;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 4rem 2rem 6rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-green), transparent);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+
+        .hero-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Process Flow */
+        .process-section {
+            padding: 4rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: var(--accent-green);
+            border-radius: 2px;
+        }
+
+        /* Process Steps */
+        .process-flow {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        @media (max-width: 1200px) {
+            .process-flow { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 600px) {
+            .process-flow { grid-template-columns: 1fr; }
+        }
+
+        .process-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .process-card:hover {
+            border-color: var(--accent-green);
+            transform: translateY(-4px);
+            box-shadow: var(--glow-green);
+        }
+
+        .process-card.active {
+            border-color: var(--accent-green);
+            box-shadow: var(--glow-green);
+        }
+
+        .process-number {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 32px;
+            height: 32px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--accent-green);
+        }
+
+        .process-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .process-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .process-card p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .process-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 1rem;
+            padding: 0.25rem 0.75rem;
+            background: rgba(0, 255, 157, 0.1);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            color: var(--accent-green);
+        }
+
+        /* Detail Panel */
+        .detail-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .detail-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .detail-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .detail-tab {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .detail-tab:hover, .detail-tab.active {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: var(--bg-primary);
+        }
+
+        .detail-content {
+            padding: 1.5rem;
+            display: none;
+        }
+
+        .detail-content.active {
+            display: block;
+        }
+
+        /* Simulator */
+        .simulator {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .simulator-header {
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .simulator-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .simulator-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .simulator-dot.red { background: #ff5f56; }
+        .simulator-dot.yellow { background: #ffbd2e; }
+        .simulator-dot.green { background: #27ca40; }
+
+        .simulator-title {
+            margin-left: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .simulator-body {
+            padding: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .sim-line {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 0.5rem;
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .sim-prompt {
+            color: var(--accent-green);
+            flex-shrink: 0;
+        }
+
+        .sim-output {
+            color: var(--text-secondary);
+        }
+
+        .sim-success {
+            color: var(--accent-green);
+        }
+
+        .sim-error {
+            color: var(--accent-red);
+        }
+
+        .sim-warning {
+            color: var(--accent-yellow);
+        }
+
+        .sim-info {
+            color: var(--accent-blue);
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: var(--glow-green);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--accent-green);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            box-shadow: var(--glow-green);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-green);
+        }
+
+        /* Code Block */
+        .code-block {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .code-header {
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+
+        .code-lang {
+            color: var(--accent-blue);
+            font-weight: 500;
+        }
+
+        .code-copy {
+            padding: 0.25rem 0.5rem;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .code-copy:hover {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .code-content {
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .code-content .keyword { color: var(--accent-purple); }
+        .code-content .string { color: var(--accent-green); }
+        .code-content .comment { color: var(--text-muted); }
+        .code-content .function { color: var(--accent-blue); }
+        .code-content .number { color: var(--accent-yellow); }
+
+        /* Flow Diagram */
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .flow-node {
+            padding: 1rem 1.5rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .flow-node.highlight {
+            border-color: var(--accent-green);
+            box-shadow: var(--glow-green);
+        }
+
+        .flow-arrow {
+            color: var(--accent-green);
+            font-size: 1.5rem;
+        }
+
+        /* Data Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            background: var(--bg-tertiary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        .data-table td {
+            font-size: 0.9rem;
+        }
+
+        .data-table tr:hover {
+            background: rgba(0, 255, 157, 0.05);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-badge.success {
+            background: rgba(0, 255, 157, 0.1);
+            color: var(--accent-green);
+        }
+
+        .status-badge.pending {
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--accent-yellow);
+        }
+
+        .status-badge.error {
+            background: rgba(255, 71, 87, 0.1);
+            color: var(--accent-red);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin: 1.5rem 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--accent-green);
+            text-decoration: none;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s ease forwards;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--accent-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">IVA</div>
+                <div class="logo-text">Tax<span>Recovery</span></div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#proceso">Proceso</a></li>
+                    <li><a href="#descarga">Descarga</a></li>
+                    <li><a href="#aplanamiento">Aplanamiento</a></li>
+                    <li><a href="#calculo">Cálculo</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Sistema de Recuperación de IVA</h1>
+            <p>Plataforma de demostración interactiva para el proceso completo de descarga, procesamiento y cálculo de impuestos desde el SAT México</p>
+            <div class="hero-badges">
+                <span class="badge"><span class="badge-dot"></span> Demo Interactivo</span>
+                <span class="badge">📄 CFDI 4.0</span>
+                <span class="badge">🔐 e.Firma / FIEL</span>
+                <span class="badge">🇲🇽 SAT México</span>
+            </div>
+        </section>
+
+        <section class="process-section" id="proceso">
+            <h2 class="section-title">Flujo del Proceso</h2>
+            
+            <div class="process-flow">
+                <div class="process-card active" data-step="1" onclick="selectStep(1)">
+                    <span class="process-number">1</span>
+                    <div class="process-icon">🔐</div>
+                    <h3>Autenticación</h3>
+                    <p>Cargar FIEL (.cer + .key) y autenticar con el SAT</p>
+                    <span class="process-status"><span class="badge-dot"></span> Iniciar aquí</span>
+                </div>
+
+                <div class="process-card" data-step="2" onclick="selectStep(2)">
+                    <span class="process-number">2</span>
+                    <div class="process-icon">📥</div>
+                    <h3>Descarga</h3>
+                    <p>Solicitar y descargar Metadatos y CFDIs del SAT</p>
+                    <span class="process-status">Pendiente</span>
+                </div>
+
+                <div class="process-card" data-step="3" onclick="selectStep(3)">
+                    <span class="process-number">3</span>
+                    <div class="process-icon">📊</div>
+                    <h3>Aplanamiento</h3>
+                    <p>Extraer y estructurar datos de los XMLs en CSVs</p>
+                    <span class="process-status">Pendiente</span>
+                </div>
+
+                <div class="process-card" data-step="4" onclick="selectStep(4)">
+                    <span class="process-number">4</span>
+                    <div class="process-icon">💰</div>
+                    <h3>Cálculo IVA</h3>
+                    <p>Calcular IVA trasladado, acreditable y saldo</p>
+                    <span class="process-status">Pendiente</span>
+                </div>
+            </div>
+
+            <!-- Step 1: Autenticación -->
+            <div class="detail-panel" id="panel-1">
+                <div class="detail-header">
+                    <h2>🔐 Paso 1: Autenticación con e.Firma</h2>
+                    <div class="detail-tabs">
+                        <button class="detail-tab active" onclick="showTab(1, 'simulator')">Simulador</button>
+                        <button class="detail-tab" onclick="showTab(1, 'code')">Código</button>
+                        <button class="detail-tab" onclick="showTab(1, 'docs')">Documentación</button>
+                    </div>
+                </div>
+
+                <div class="detail-content active" id="panel-1-simulator">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">RFC del Contribuyente</label>
+                            <input type="text" class="form-input" id="rfc-input" placeholder="ABC123456XXX" value="STM1305079E4">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Archivo .cer (Certificado)</label>
+                            <input type="text" class="form-input" placeholder="certificado.cer" value="certificado.cer" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Archivo .key (Llave Privada)</label>
+                            <input type="text" class="form-input" placeholder="llave.key" value="Claveprivada.key" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Contraseña FIEL</label>
+                            <input type="password" class="form-input" id="password-input" placeholder="••••••••" value="demo123">
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="simulateAuth()" id="btn-auth">
+                        🔐 Autenticar con SAT
+                    </button>
+
+                    <div class="simulator" style="margin-top: 1.5rem;">
+                        <div class="simulator-header">
+                            <div class="simulator-dots">
+                                <span class="simulator-dot red"></span>
+                                <span class="simulator-dot yellow"></span>
+                                <span class="simulator-dot green"></span>
+                            </div>
+                            <span class="simulator-title">Terminal - Autenticación SAT</span>
+                        </div>
+                        <div class="simulator-body" id="auth-output">
+                            <div class="sim-line" style="animation-delay: 0s;">
+                                <span class="sim-prompt">$</span>
+                                <span class="sim-output">Esperando inicio de autenticación...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-content" id="panel-1-code">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Python - sat_extractor.py</span>
+                            <button class="code-copy" onclick="copyCode(this)">Copiar</button>
+                        </div>
+                        <div class="code-content">
+<span class="keyword">def</span> <span class="function">fn_authenticate</span>(self, param_silent: bool = <span class="keyword">False</span>) -> bool:
+    <span class="string">"""
+    Autentica con el servicio del SAT.
+    
+    RECIBE: param_silent (bool) - Si True, no muestra mensajes
+    DEVUELVE: (bool) True si la autenticación fue exitosa
+    """</span>
+    <span class="comment"># CAPA 1: EXTRACCIÓN</span>
+    <span class="keyword">if not</span> self._current_fiel:
+        <span class="keyword">if not</span> param_silent:
+            self._internal_log(<span class="string">"No hay FIEL seleccionada"</span>, <span class="string">"error"</span>)
+        <span class="keyword">return</span> <span class="keyword">False</span>
+
+    <span class="comment"># CAPA 3: CÁLCULO</span>
+    <span class="keyword">try</span>:
+        <span class="keyword">from</span> cfdiclient <span class="keyword">import</span> Autenticacion
+
+        _auth_service = <span class="function">Autenticacion</span>(self._current_fiel)
+        _token = _auth_service.<span class="function">obtener_token</span>()
+
+        <span class="keyword">if</span> _token:
+            self._auth_token = _token
+            <span class="comment"># CAPA 4: OUTPUT</span>
+            <span class="keyword">if not</span> param_silent:
+                self._internal_log(<span class="string">"Autenticación exitosa"</span>)
+            <span class="keyword">return</span> <span class="keyword">True</span>
+
+    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:
+        <span class="keyword">if not</span> param_silent:
+            self._internal_log(<span class="string">f"Error de autenticación: {e}"</span>, <span class="string">"error"</span>)
+
+    <span class="keyword">return</span> <span class="keyword">False</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-content" id="panel-1-docs">
+                    <h3 style="margin-bottom: 1rem;">📋 ¿Qué es la e.Firma (FIEL)?</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                        La <strong>Firma Electrónica Avanzada (FIEL)</strong> es un archivo digital que funciona como una firma autógrafa. 
+                        Se compone de dos archivos:
+                    </p>
+                    
+                    <div class="flow-diagram">
+                        <div class="flow-node">
+                            <strong>📜 .cer</strong><br>
+                            <small style="color: var(--text-secondary);">Certificado público</small>
+                        </div>
+                        <span class="flow-arrow">+</span>
+                        <div class="flow-node">
+                            <strong>🔑 .key</strong><br>
+                            <small style="color: var(--text-secondary);">Llave privada</small>
+                        </div>
+                        <span class="flow-arrow">+</span>
+                        <div class="flow-node">
+                            <strong>🔒 Contraseña</strong><br>
+                            <small style="color: var(--text-secondary);">Para descifrar</small>
+                        </div>
+                        <span class="flow-arrow">=</span>
+                        <div class="flow-node highlight">
+                            <strong>✅ Token SAT</strong><br>
+                            <small style="color: var(--text-secondary);">Acceso autorizado</small>
+                        </div>
+                    </div>
+
+                    <h4 style="margin: 1.5rem 0 1rem;">⚙️ Flujo de Autenticación</h4>
+                    <ol style="color: var(--text-secondary); padding-left: 1.5rem;">
+                        <li style="margin-bottom: 0.5rem;">Se leen los archivos .cer y .key del disco</li>
+                        <li style="margin-bottom: 0.5rem;">Se crea un objeto FIEL con la contraseña</li>
+                        <li style="margin-bottom: 0.5rem;">Se envía solicitud al endpoint de Autenticación del SAT</li>
+                        <li style="margin-bottom: 0.5rem;">El SAT valida la firma digital y devuelve un TOKEN</li>
+                        <li>El TOKEN se usa para todas las operaciones siguientes</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Step 2: Descarga -->
+            <div class="detail-panel" id="panel-2" style="display: none;">
+                <div class="detail-header">
+                    <h2>📥 Paso 2: Descarga de CFDIs</h2>
+                    <div class="detail-tabs">
+                        <button class="detail-tab active" onclick="showTab(2, 'simulator')">Simulador</button>
+                        <button class="detail-tab" onclick="showTab(2, 'code')">Código</button>
+                        <button class="detail-tab" onclick="showTab(2, 'docs')">Documentación</button>
+                    </div>
+                </div>
+
+                <div class="detail-content active" id="panel-2-simulator">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Fecha Inicial</label>
+                            <input type="date" class="form-input" id="date-start" value="2025-01-01">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Fecha Final</label>
+                            <input type="date" class="form-input" id="date-end" value="2025-01-31">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tipo de Descarga</label>
+                            <select class="form-input" id="download-type">
+                                <option value="Metadata">Metadata (rápido)</option>
+                                <option value="CFDI">CFDI completos</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tipo de CFDI</label>
+                            <select class="form-input" id="cfdi-type">
+                                <option value="RECEIVED">Recibidos</option>
+                                <option value="ISSUED">Emitidos</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="simulateDownload()" id="btn-download" disabled>
+                        📥 Solicitar Descarga
+                    </button>
+
+                    <div class="progress-container" id="download-progress" style="display: none;">
+                        <div class="progress-label">
+                            <span>Progreso de descarga</span>
+                            <span id="progress-percent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="simulator" style="margin-top: 1.5rem;">
+                        <div class="simulator-header">
+                            <div class="simulator-dots">
+                                <span class="simulator-dot red"></span>
+                                <span class="simulator-dot yellow"></span>
+                                <span class="simulator-dot green"></span>
+                            </div>
+                            <span class="simulator-title">Terminal - Descarga Masiva SAT</span>
+                        </div>
+                        <div class="simulator-body" id="download-output">
+                            <div class="sim-line">
+                                <span class="sim-prompt">$</span>
+                                <span class="sim-output">Autentícate primero para habilitar la descarga...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-content" id="panel-2-code">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Python - Solicitud de Descarga</span>
+                            <button class="code-copy" onclick="copyCode(this)">Copiar</button>
+                        </div>
+                        <div class="code-content">
+<span class="keyword">def</span> <span class="function">_internal_send_request</span>(self, param_start, param_end, param_download_type, param_cfdi_type):
+    <span class="string">"""Envía una solicitud de descarga al SAT."""</span>
+    <span class="keyword">from</span> cfdiclient <span class="keyword">import</span> SolicitaDescargaEmitidos, SolicitaDescargaRecibidos
+
+    <span class="keyword">if</span> param_cfdi_type.upper() == <span class="string">'ISSUED'</span>:
+        _service_class = SolicitaDescargaEmitidos
+        _kwargs = {<span class="string">'rfc_emisor'</span>: self._rfc_solicitante}
+    <span class="keyword">else</span>:
+        _service_class = SolicitaDescargaRecibidos
+        _kwargs = {<span class="string">'rfc_receptor'</span>: self._rfc_solicitante}
+
+    _service = <span class="function">_service_class</span>(self._current_fiel, timeout=<span class="number">120</span>)
+
+    _response = _service.<span class="function">solicitar_descarga</span>(
+        self._auth_token,
+        self._rfc_solicitante,
+        param_start,
+        param_end,
+        tipo_solicitud=param_download_type,
+        **_kwargs
+    )
+
+    <span class="comment"># Respuesta incluye: cod_estatus, mensaje, id_solicitud</span>
+    <span class="keyword">return</span> _response.get(<span class="string">'id_solicitud'</span>)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-content" id="panel-2-docs">
+                    <h3 style="margin-bottom: 1rem;">📋 Estados de Solicitud SAT</h3>
+                    
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Estado</th>
+                                <th>Descripción</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>1</code></td>
+                                <td><span class="status-badge pending">📤 Aceptada</span></td>
+                                <td>Solicitud recibida y en cola</td>
+                                <td>Esperar</td>
+                            </tr>
+                            <tr>
+                                <td><code>2</code></td>
+                                <td><span class="status-badge pending">⏳ En proceso</span></td>
+                                <td>SAT generando archivos</td>
+                                <td>Esperar</td>
+                            </tr>
+                            <tr>
+                                <td><code>3</code></td>
+                                <td><span class="status-badge success">✅ Lista</span></td>
+                                <td>Paquetes listos para descarga</td>
+                                <td>Descargar</td>
+                            </tr>
+                            <tr>
+                                <td><code>4</code></td>
+                                <td><span class="status-badge error">❌ Error</span></td>
+                                <td>Error en la solicitud</td>
+                                <td>Reintentar</td>
+                            </tr>
+                            <tr>
+                                <td><code>5</code></td>
+                                <td><span class="status-badge error">🚫 Rechazada</span></td>
+                                <td>SAT rechazó la solicitud</td>
+                                <td>Verificar parámetros</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4 style="margin: 1.5rem 0 1rem;">⚠️ Límites del SAT</h4>
+                    <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
+                        <li style="margin-bottom: 0.5rem;"><strong>Metadata:</strong> Máximo 1,000,000 registros por solicitud</li>
+                        <li style="margin-bottom: 0.5rem;"><strong>CFDI:</strong> Máximo 200,000 XMLs por solicitud</li>
+                        <li style="margin-bottom: 0.5rem;"><strong>Caducidad:</strong> Los paquetes expiran en 72 horas</li>
+                        <li><strong>Períodos:</strong> Se recomienda dividir en rangos de 7 días</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 3: Aplanamiento -->
+            <div class="detail-panel" id="panel-3" style="display: none;">
+                <div class="detail-header">
+                    <h2>📊 Paso 3: Aplanamiento de XMLs</h2>
+                    <div class="detail-tabs">
+                        <button class="detail-tab active" onclick="showTab(3, 'simulator')">Simulador</button>
+                        <button class="detail-tab" onclick="showTab(3, 'code')">Estructura</button>
+                        <button class="detail-tab" onclick="showTab(3, 'docs')">Documentación</button>
+                    </div>
+                </div>
+
+                <div class="detail-content active" id="panel-3-simulator">
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                        El aplanamiento convierte los XMLs jerárquicos en tablas CSV planas, separando cada nivel del documento.
+                    </p>
+
+                    <div class="simulator">
+                        <div class="simulator-header">
+                            <div class="simulator-dots">
+                                <span class="simulator-dot red"></span>
+                                <span class="simulator-dot yellow"></span>
+                                <span class="simulator-dot green"></span>
+                            </div>
+                            <span class="simulator-title">Estructura de Archivos Generados</span>
+                        </div>
+                        <div class="simulator-body">
+                            <div class="sim-line"><span class="sim-prompt">📁</span><span class="sim-output">output/</span></div>
+                            <div class="sim-line"><span class="sim-prompt">  ├──</span><span class="sim-success">_comprobante.csv</span> <span class="sim-info"># Datos generales del CFDI</span></div>
+                            <div class="sim-line"><span class="sim-prompt">  ├──</span><span class="sim-success">_concepto.csv</span> <span class="sim-info"># Artículos/servicios facturados</span></div>
+                            <div class="sim-line"><span class="sim-prompt">  ├──</span><span class="sim-success">_concepto_traslado.csv</span> <span class="sim-info"># IVA por concepto</span></div>
+                            <div class="sim-line"><span class="sim-prompt">  ├──</span><span class="sim-success">_concepto_retencion.csv</span> <span class="sim-info"># Retenciones por concepto</span></div>
+                            <div class="sim-line"><span class="sim-prompt">  ├──</span><span class="sim-warning">_pagos_pago.csv</span> <span class="sim-info"># Complemento de pagos (PPD)</span></div>
+                            <div class="sim-line"><span class="sim-prompt">  ├──</span><span class="sim-warning">_pagos_docto.csv</span> <span class="sim-info"># Documentos relacionados</span></div>
+                            <div class="sim-line"><span class="sim-prompt">  ├──</span><span class="sim-warning">_pagos_traslado_dr.csv</span> <span class="sim-info"># IVA en pagos</span></div>
+                            <div class="sim-line"><span class="sim-prompt">  └──</span><span class="sim-output">_ledger.csv</span> <span class="sim-info"># Registro universal</span></div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="simulateFlatten()" id="btn-flatten" disabled style="margin-top: 1.5rem;">
+                        📊 Simular Aplanamiento
+                    </button>
+                </div>
+
+                <div class="detail-content" id="panel-3-code">
+                    <h4 style="margin-bottom: 1rem;">Estructura de _comprobante.csv</h4>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Campo</th>
+                                <th>Tipo</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>UUID</td><td>string</td><td>Identificador único del CFDI</td></tr>
+                            <tr><td>Version</td><td>string</td><td>3.3 o 4.0</td></tr>
+                            <tr><td>Fecha</td><td>datetime</td><td>Fecha de emisión</td></tr>
+                            <tr><td>TipoDeComprobante</td><td>string</td><td>I=Ingreso, E=Egreso, P=Pago</td></tr>
+                            <tr><td>MetodoPago</td><td>string</td><td>PUE o PPD</td></tr>
+                            <tr><td>FormaPago</td><td>string</td><td>Código SAT (01, 02, 03...)</td></tr>
+                            <tr><td>SubTotal</td><td>decimal</td><td>Importe antes de impuestos</td></tr>
+                            <tr><td>Total</td><td>decimal</td><td>Importe total</td></tr>
+                            <tr><td>Moneda</td><td>string</td><td>MXN, USD, EUR...</td></tr>
+                            <tr><td>RfcEmisor</td><td>string</td><td>RFC de quien emite</td></tr>
+                            <tr><td>RfcReceptor</td><td>string</td><td>RFC de quien recibe</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="detail-content" id="panel-3-docs">
+                    <h3 style="margin-bottom: 1rem;">📋 ¿Por qué aplanar?</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                        Un CFDI es un XML jerárquico con múltiples niveles. Para analizarlo en Excel o con pandas, necesitamos convertirlo a tablas planas.
+                    </p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">XML - Estructura original</span>
+                        </div>
+                        <div class="code-content">
+&lt;cfdi:Comprobante UUID="ABC123" Total="1160"&gt;
+  &lt;cfdi:Conceptos&gt;
+    &lt;cfdi:Concepto Descripcion="Servicio" Importe="1000"&gt;
+      &lt;cfdi:Traslados&gt;
+        &lt;cfdi:Traslado Impuesto="002" TasaOCuota="0.16" Importe="160"/&gt;
+      &lt;/cfdi:Traslados&gt;
+    &lt;/cfdi:Concepto&gt;
+  &lt;/cfdi:Conceptos&gt;
+&lt;/cfdi:Comprobante&gt;
+                        </div>
+                    </div>
+
+                    <p style="color: var(--text-secondary); margin: 1rem 0;">Se convierte en 3 registros CSV relacionados por UUID:</p>
+
+                    <div style="display: grid; gap: 1rem;">
+                        <div class="code-block">
+                            <div class="code-header"><span class="code-lang">_comprobante.csv</span></div>
+                            <div class="code-content">UUID,Total
+ABC123,1160</div>
+                        </div>
+                        <div class="code-block">
+                            <div class="code-header"><span class="code-lang">_concepto.csv</span></div>
+                            <div class="code-content">UUID,ConceptoIndex,Descripcion,Importe
+ABC123,1,Servicio,1000</div>
+                        </div>
+                        <div class="code-block">
+                            <div class="code-header"><span class="code-lang">_concepto_traslado.csv</span></div>
+                            <div class="code-content">UUID,ConceptoIndex,Impuesto,TasaOCuota,Importe
+ABC123,1,002,0.16,160</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Cálculo -->
+            <div class="detail-panel" id="panel-4" style="display: none;">
+                <div class="detail-header">
+                    <h2>💰 Paso 4: Cálculo de IVA</h2>
+                    <div class="detail-tabs">
+                        <button class="detail-tab active" onclick="showTab(4, 'simulator')">Simulador</button>
+                        <button class="detail-tab" onclick="showTab(4, 'code')">Fórmulas</button>
+                        <button class="detail-tab" onclick="showTab(4, 'docs')">Documentación</button>
+                    </div>
+                </div>
+
+                <div class="detail-content active" id="panel-4-simulator">
+                    <h4 style="margin-bottom: 1rem;">Resumen de IVA - Enero 2025</h4>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; border-left: 4px solid var(--accent-green);">
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">IVA Trasladado</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-green);">$485,230.00</div>
+                        </div>
+                        <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; border-left: 4px solid var(--accent-blue);">
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">IVA Acreditable</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-blue);">$612,450.00</div>
+                        </div>
+                        <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; border-left: 4px solid var(--accent-yellow);">
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Saldo a Favor</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-yellow);">$127,220.00</div>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-bottom: 1rem;">Desglose por Tipo de Pago</h4>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Concepto</th>
+                                <th>PUE</th>
+                                <th>PPD</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>IVA Trasladado (Ventas)</td>
+                                <td style="color: var(--accent-green);">$320,150.00</td>
+                                <td style="color: var(--accent-green);">$165,080.00</td>
+                                <td style="font-weight: 600;">$485,230.00</td>
+                            </tr>
+                            <tr>
+                                <td>IVA Acreditable (Compras)</td>
+                                <td style="color: var(--accent-blue);">$412,300.00</td>
+                                <td style="color: var(--accent-blue);">$200,150.00</td>
+                                <td style="font-weight: 600;">$612,450.00</td>
+                            </tr>
+                            <tr style="background: rgba(255, 215, 0, 0.1);">
+                                <td><strong>Saldo</strong></td>
+                                <td style="color: var(--accent-yellow);">-$92,150.00</td>
+                                <td style="color: var(--accent-yellow);">-$35,070.00</td>
+                                <td style="font-weight: 700; color: var(--accent-yellow);">-$127,220.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="detail-content" id="panel-4-code">
+                    <h4 style="margin-bottom: 1rem;">Fórmulas de Cálculo</h4>
+                    
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">IVA Trasladado (Ventas)</span></div>
+                        <div class="code-content">
+<span class="comment"># PUE: Pago en Una sola Exhibición - Se acredita al emitir</span>
+IVA_trasladado_PUE = Σ (IVA de facturas emitidas con MetodoPago='PUE')
+
+<span class="comment"># PPD: Pago en Parcialidades o Diferido - Se acredita al cobrar</span>
+IVA_trasladado_PPD = Σ (IVA de complementos de pago recibidos donde TipoDeComprobante='P')
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">IVA Acreditable (Compras)</span></div>
+                        <div class="code-content">
+<span class="comment"># PUE: Se acredita al recibir la factura</span>
+IVA_acreditable_PUE = Σ (IVA de facturas recibidas con MetodoPago='PUE')
+
+<span class="comment"># PPD: Se acredita al pagar</span>
+IVA_acreditable_PPD = Σ (IVA de complementos de pago emitidos donde TipoDeComprobante='P')
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">Saldo Final</span></div>
+                        <div class="code-content">
+Saldo_IVA = IVA_trasladado_total - IVA_acreditable_total
+
+<span class="keyword">if</span> Saldo_IVA > <span class="number">0</span>:
+    <span class="comment"># IVA a pagar al SAT</span>
+    resultado = <span class="string">"PAGAR"</span>
+<span class="keyword">else</span>:
+    <span class="comment"># IVA a favor - Solicitar devolución</span>
+    resultado = <span class="string">"SALDO A FAVOR"</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-content" id="panel-4-docs">
+                    <h3 style="margin-bottom: 1rem;">📋 PUE vs PPD: La Diferencia Clave</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                        <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px;">
+                            <h4 style="color: var(--accent-green); margin-bottom: 1rem;">PUE - Pago en Una Exhibición</h4>
+                            <ul style="color: var(--text-secondary); padding-left: 1rem; font-size: 0.9rem;">
+                                <li style="margin-bottom: 0.5rem;">Pago inmediato o en máximo 30 días</li>
+                                <li style="margin-bottom: 0.5rem;">IVA se acredita en el mes de la factura</li>
+                                <li style="margin-bottom: 0.5rem;">No requiere complemento de pago</li>
+                                <li>Más simple de procesar</li>
+                            </ul>
+                        </div>
+                        <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px;">
+                            <h4 style="color: var(--accent-blue); margin-bottom: 1rem;">PPD - Pago en Parcialidades/Diferido</h4>
+                            <ul style="color: var(--text-secondary); padding-left: 1rem; font-size: 0.9rem;">
+                                <li style="margin-bottom: 0.5rem;">Pago después de 30 días o en partes</li>
+                                <li style="margin-bottom: 0.5rem;">IVA se acredita cuando se paga</li>
+                                <li style="margin-bottom: 0.5rem;">Requiere complemento de pago (REP)</li>
+                                <li>Más complejo pero más flexible</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-bottom: 1rem;">⏰ Plazos de Recuperación</h4>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                        Según el artículo 146 del CFF, el derecho a solicitar devolución de IVA prescribe en <strong>5 años</strong> 
+                        contados a partir del día siguiente al vencimiento del plazo para presentar la declaración del periodo.
+                    </p>
+                    
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">Ejemplo de Cálculo de Vencimiento</span></div>
+                        <div class="code-content">
+IVA a favor de: <span class="string">Febrero 2021</span>
+Declaración mensual vence: <span class="string">17 de Marzo 2021</span>
+Prescripción (5 años): <span class="string">17 de Marzo 2026</span>
+
+<span class="comment">// El contribuyente tiene hasta el 17 de marzo de 2026</span>
+<span class="comment">// para solicitar la devolución de ese saldo a favor</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Sistema de Recuperación de IVA - Demo Interactivo</p>
+        <p style="margin-top: 0.5rem;">
+            Desarrollado para <a href="#">srexcel.github.io/tax</a> | 
+            Basado en <a href="#">cfdiclient</a> y SAT Descarga Masiva v1.5
+        </p>
+    </footer>
+
+    <script>
+        // State management
+        let isAuthenticated = false;
+        let downloadComplete = false;
+        let currentStep = 1;
+
+        function selectStep(step) {
+            // Update cards
+            document.querySelectorAll('.process-card').forEach((card, idx) => {
+                card.classList.remove('active');
+                if (idx + 1 === step) card.classList.add('active');
+            });
+
+            // Show corresponding panel
+            for (let i = 1; i <= 4; i++) {
+                const panel = document.getElementById(`panel-${i}`);
+                panel.style.display = i === step ? 'block' : 'none';
+            }
+
+            currentStep = step;
+        }
+
+        function showTab(step, tabName) {
+            // Update tab buttons
+            const panel = document.getElementById(`panel-${step}`);
+            panel.querySelectorAll('.detail-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent.toLowerCase().includes(tabName.substring(0, 4))) {
+                    tab.classList.add('active');
+                }
+            });
+
+            // Show tab content
+            ['simulator', 'code', 'docs'].forEach(name => {
+                const content = document.getElementById(`panel-${step}-${name}`);
+                if (content) {
+                    content.classList.remove('active');
+                    if (name === tabName) content.classList.add('active');
+                }
+            });
+        }
+
+        function simulateAuth() {
+            const btn = document.getElementById('btn-auth');
+            const output = document.getElementById('auth-output');
+            const rfc = document.getElementById('rfc-input').value;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Autenticando...';
+            output.innerHTML = '';
+
+            const lines = [
+                { delay: 0, prompt: '$', text: `Iniciando autenticación para RFC: ${rfc}`, class: '' },
+                { delay: 500, prompt: '📖', text: 'Leyendo archivos FIEL...', class: '' },
+                { delay: 1000, prompt: '✅', text: 'Certificado leído: 1666 bytes', class: 'sim-success' },
+                { delay: 1300, prompt: '✅', text: 'Clave privada leída: 1298 bytes', class: 'sim-success' },
+                { delay: 1800, prompt: '🔑', text: 'Creando objeto FIEL...', class: '' },
+                { delay: 2200, prompt: '✅', text: 'FIEL creada exitosamente', class: 'sim-success' },
+                { delay: 2600, prompt: '🔐', text: 'Obteniendo autenticación del SAT...', class: '' },
+                { delay: 3500, prompt: '✅', text: 'TOKEN obtenido exitosamente', class: 'sim-success' },
+                { delay: 4000, prompt: '🔐', text: 'TOKEN: eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNo...', class: 'sim-info' },
+                { delay: 4500, prompt: '✅', text: '¡AUTENTICACIÓN EXITOSA!', class: 'sim-success' },
+            ];
+
+            lines.forEach((line, idx) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = 'sim-line';
+                    div.style.animationDelay = '0s';
+                    div.innerHTML = `
+                        <span class="sim-prompt">${line.prompt}</span>
+                        <span class="${line.class || 'sim-output'}">${line.text}</span>
+                    `;
+                    output.appendChild(div);
+                    output.scrollTop = output.scrollHeight;
+                }, line.delay);
+            });
+
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = '✅ Autenticado';
+                btn.classList.add('btn-secondary');
+                btn.classList.remove('btn-primary');
+                isAuthenticated = true;
+                
+                // Enable download button
+                document.getElementById('btn-download').disabled = false;
+                document.getElementById('download-output').innerHTML = `
+                    <div class="sim-line">
+                        <span class="sim-prompt">✅</span>
+                        <span class="sim-success">Autenticación completada. Puedes iniciar la descarga.</span>
+                    </div>
+                `;
+                
+                // Update step 1 status
+                document.querySelector('[data-step="1"] .process-status').innerHTML = '✅ Completado';
+            }, 5000);
+        }
+
+        function simulateDownload() {
+            const btn = document.getElementById('btn-download');
+            const output = document.getElementById('download-output');
+            const progressContainer = document.getElementById('download-progress');
+            const progressFill = document.getElementById('progress-fill');
+            const progressPercent = document.getElementById('progress-percent');
+            
+            const dateStart = document.getElementById('date-start').value;
+            const dateEnd = document.getElementById('date-end').value;
+            const downloadType = document.getElementById('download-type').value;
+            const cfdiType = document.getElementById('cfdi-type').value;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Descargando...';
+            output.innerHTML = '';
+            progressContainer.style.display = 'block';
+
+            const lines = [
+                { delay: 0, prompt: '$', text: `Iniciando descarga: ${dateStart} → ${dateEnd}`, class: '' },
+                { delay: 500, prompt: '📋', text: `Tipo: ${downloadType} | CFDIs: ${cfdiType === 'RECEIVED' ? 'Recibidos' : 'Emitidos'}`, class: 'sim-info' },
+                { delay: 1000, prompt: '📤', text: 'Enviando solicitud al SAT...', class: '' },
+                { delay: 2000, prompt: '✅', text: 'Solicitud aceptada. ID: 8a7b9c2d-1234-5678-abcd-ef0123456789', class: 'sim-success' },
+                { delay: 3000, prompt: '⏳', text: 'Verificando estado de solicitud...', class: '' },
+                { delay: 4000, prompt: '⏳', text: '[Estado: 2] SAT procesando solicitud...', class: 'sim-warning' },
+                { delay: 6000, prompt: '✅', text: '[Estado: 3] ¡Paquetes listos para descarga!', class: 'sim-success' },
+                { delay: 7000, prompt: '📦', text: 'SAT reporta 3 paquete(s) disponibles', class: 'sim-info' },
+                { delay: 8000, prompt: '📥', text: '[1/3] Descargando paquete abc123...', class: '' },
+                { delay: 9500, prompt: '💾', text: 'Guardado: abc123.zip (2.4 MB) - 847 XMLs', class: 'sim-success' },
+                { delay: 10500, prompt: '📥', text: '[2/3] Descargando paquete def456...', class: '' },
+                { delay: 12000, prompt: '💾', text: 'Guardado: def456.zip (1.8 MB) - 623 XMLs', class: 'sim-success' },
+                { delay: 13000, prompt: '📥', text: '[3/3] Descargando paquete ghi789...', class: '' },
+                { delay: 14500, prompt: '💾', text: 'Guardado: ghi789.zip (890 KB) - 312 XMLs', class: 'sim-success' },
+                { delay: 15500, prompt: '✅', text: '¡DESCARGA COMPLETADA! Total: 1,782 CFDIs', class: 'sim-success' },
+            ];
+
+            // Progress animation
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 2;
+                if (progress > 100) progress = 100;
+                progressFill.style.width = `${progress}%`;
+                progressPercent.textContent = `${progress}%`;
+                if (progress >= 100) clearInterval(progressInterval);
+            }, 300);
+
+            lines.forEach((line) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = 'sim-line';
+                    div.innerHTML = `
+                        <span class="sim-prompt">${line.prompt}</span>
+                        <span class="${line.class || 'sim-output'}">${line.text}</span>
+                    `;
+                    output.appendChild(div);
+                    output.scrollTop = output.scrollHeight;
+                }, line.delay);
+            });
+
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = '✅ Descarga Completa';
+                btn.classList.add('btn-secondary');
+                btn.classList.remove('btn-primary');
+                downloadComplete = true;
+                
+                // Enable flatten button
+                document.getElementById('btn-flatten').disabled = false;
+                
+                // Update step 2 status
+                document.querySelector('[data-step="2"] .process-status').innerHTML = '✅ Completado';
+            }, 16000);
+        }
+
+        function simulateFlatten() {
+            // Simply mark as complete and move to next step
+            document.querySelector('[data-step="3"] .process-status').innerHTML = '✅ Completado';
+            selectStep(4);
+        }
+
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('.code-content').textContent;
+            navigator.clipboard.writeText(code);
+            button.textContent = '¡Copiado!';
+            setTimeout(() => button.textContent = 'Copiar', 2000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            selectStep(1);
+        });
+    </script>
+</body>
+</html>
