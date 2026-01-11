@@ -3224,6 +3224,11 @@ h                (event) {
                 setTimeout(() => {
                             const main = document.querySelector('main');
                             if (main) {
+                                           main.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                            const main = document.querySelector('main');
+                            if (main) {
+                                            main.style.display = 'block';
                                             main.scrollIntoView({ behavior: 'smooth', block: 'start' });
                             }
                 }, 600);
