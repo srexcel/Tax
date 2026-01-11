@@ -2281,7 +2281,8 @@ requests>=2.31.0
             return false;
         }
 
-        function attemptLogin(event) {
+        2284
+h                (event) {
             event.preventDefault();
             
             const user = document.getElementById('login-user').value.trim().toLowerCase();
@@ -3129,6 +3130,162 @@ requests>=2.31.0
                 .open button span:last-child { transform: rotate(45deg); }
             </style>
         `);
+    </script>
+
+
+    <!-- MEJORAS DE AUTENTICACIÓN - VERSIÓN MEJORADA -->
+    <script>
+        // ===== MEJORAS DE AUTENTICACIÓN =====
+
+        const LOGIN_TIMEOUT = 800; // milisegundos
+
+        // Reemplazar la función attemptLogin existente
+        function attemptLogin(event) {
+                event.preventDefault();
+
+                const userField = document.querySelector('input[type="text"]');
+                const passField = document.querySelector('input[type="password"]');
+                const submitBtn = document.querySelector('button[type="submit"]');
+                const errorMsg = document.querySelector('[class*="error"]');
+
+                // Validar campos no vacíos
+                if (!userField.value.trim() || !passField.value.trim()) {
+                            showError(errorMsg, 'Por favor completa todos los campos');
+                            return;
+                }
+
+                // Estado: autenticando
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.7';
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = '⏳ Autenticando...';
+
+                // Simular autenticación
+                setTimeout(() => {
+                            const isValid = userField.value === 'demo' && passField.value === 'demo123';
+
+                            if (isValid) {
+                                            // ✅ ÉXITO
+                                            hideLoginForm();
+                                            saveAuthState();
+                                            showSuccessBanner();
+                                            scrollToDemo();
+                                            enableDemoUI();
+                            } else {
+                                            // ❌ ERROR
+                                            submitBtn.disabled = false;
+                                            submitBtn.style.opacity = '1';
+                                            submitBtn.textContent = originalText;
+                                            showError(errorMsg, '❌ Credenciales incorrectas');
+                                            passField.value = '';
+                                            passField.focus();
+                            }
+                }, LOGIN_TIMEOUT);
+        }
+
+        function hideLoginForm() {
+                const loginContainer = document.querySelector('.login-container');
+                if (loginContainer) {
+                            loginContainer.style.transition = 'all 0.5s ease-out';
+                            loginContainer.style.opacity = '0';
+                            loginContainer.style.transform = 'translateY(-20px)';
+                            setTimeout(() => {
+                                            loginContainer.style.display = 'none';
+                            }, 500);
+                }
+        }
+
+        function saveAuthState() {
+                sessionStorage.setItem('__auth_demo', Date.now());
+        }
+
+        function showSuccessBanner() {
+                const banner = document.createElement('div');
+                banner.style.cssText = `
+                        position: fixed;
+                                top: 20px;
+                                        right: 20px;
+                                                background: linear-gradient(135deg, #00ff88, #00cc66);
+                                                        color: white;
+                                                                padding: 1rem 1.5rem;
+                                                                        border-radius: 8px;
+                                                                                font-weight: bold;
+                                                                                        z-index: 10000;
+                                                                                                box-shadow: 0 8px 24px rgba(0,255,136,0.3);
+                                                                                                        animation: slideInRight 0.5s ease-out;
+                                                                                                            `;
+                banner.textContent = '✅ ¡Autenticación exitosa!';
+                document.body.appendChild(banner);
+
+                setTimeout(() => banner.remove(), 3000);
+        }
+
+        function scrollToDemo() {
+                setTimeout(() => {
+                            const main = document.querySelector('main');
+                            if (main) {
+                                            main.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                }, 600);
+        }
+
+        function enableDemoUI() {
+                document.querySelectorAll('button:disabled').forEach(btn => {
+                            if (!btn.textContent.includes('Próximamente')) {
+                                            btn.disabled = false;
+                            }
+                });
+        }
+
+        function showError(element, message) {
+                if (element) {
+                            element.textContent = message;
+                            element.style.display = 'block';
+                            element.style.color = '#ff4444';
+                            element.style.animation = 'shake 0.5s';
+                }
+        }
+
+        // Verificar autenticación previa al cargar
+        window.addEventListener('load', () => {
+                if (sessionStorage.getItem('__auth_demo')) {
+                            const loginContainer = document.querySelector('.login-container');
+                            if (loginContainer) {
+                                            loginContainer.style.display = 'none';
+                            }
+                }
+        });
+
+        // Agregar animaciones CSS
+        const authStyles = document.createElement('style');
+        authStyles.textContent = `
+            @keyframes slideInRight {
+                    from {
+                                transform: translateX(400px);
+                                            opacity: 0;
+                                                    }
+                                                            to {
+                                                                        transform: translateX(0);
+                                                                                    opacity: 1;
+                                                                                            }
+                                                                                                }
+                                                                                                    
+                                                                                                        @keyframes shake {
+                                                                                                                0%, 100% { transform: translateX(0); }
+                                                                                                                        25% { transform: translateX(-5px); }
+                                                                                                                                75% { transform: translateX(5px); }
+                                                                                                                                    }
+                                                                                                                                        
+                                                                                                                                            button[type="submit"]:disabled {
+                                                                                                                                                    cursor: not-allowed;
+                                                                                                                                                        }
+                                                                                                                                                            
+                                                                                                                                                                .login-container {
+                                                                                                                                                                        transition: all 0.5s ease-out;
+                                                                                                                                                                            }
+                                                                                                                                                                            `;
+        document.head.appendChild(authStyles);
+    </script>
     </script>
 </body>
 </html>
