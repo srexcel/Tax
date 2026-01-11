@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" 
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital"
+                  xsi:schemaLocation="http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd"
+                  Version="4.0" 
+                  Serie="A" 
+                  Folio="1001"
+                  Fecha="2025-01-15T10:30:00"
+                  FormaPago="03" 
+                  MetodoPago="PUE"
+                  TipoDeComprobante="I"
+                  Exportacion="01"
+                  LugarExpedicion="06600"
+                  SubTotal="50000.00"
+                  Descuento="0.00"
+                  Moneda="MXN"
+                  Total="58000.00"
+                  Certificado="..."
+                  NoCertificado="00001000000123456789"
+                  Sello="...">
+    
+    <cfdi:InformacionGlobal Periodicidad="04" Meses="01" Año="2025"/>
+    
+    <cfdi:Emisor Rfc="AAA010101AAA" 
+                 Nombre="EMPRESA DEMO SA DE CV" 
+                 RegimenFiscal="601"/>
+    
+    <cfdi:Receptor Rfc="XXX111111XXX" 
+                   Nombre="CLIENTE EJEMPLO SA DE CV" 
+                   DomicilioFiscalReceptor="01000" 
+                   RegimenFiscalReceptor="601" 
+                   UsoCFDI="G03"/>
+    
+    <cfdi:Conceptos>
+        <cfdi:Concepto ClaveProdServ="84111506" 
+                       NoIdentificacion="SERV001"
+                       Cantidad="1" 
+                       ClaveUnidad="E48" 
+                       Unidad="Servicio"
+                       Descripcion="Servicios profesionales de consultoría fiscal"
+                       ValorUnitario="30000.00" 
+                       Importe="30000.00"
+                       Descuento="0.00"
+                       ObjetoImp="02">
+            <cfdi:Impuestos>
+                <cfdi:Traslados>
+                    <cfdi:Traslado Base="30000.00" 
+                                   Impuesto="002" 
+                                   TipoFactor="Tasa" 
+                                   TasaOCuota="0.160000" 
+                                   Importe="4800.00"/>
+                </cfdi:Traslados>
+            </cfdi:Impuestos>
+        </cfdi:Concepto>
+        
+        <cfdi:Concepto ClaveProdServ="43232408" 
+                       NoIdentificacion="LIC001"
+                       Cantidad="5" 
+                       ClaveUnidad="E48" 
+                       Unidad="Licencia"
+                       Descripcion="Licencia de software contable anual"
+                       ValorUnitario="4000.00" 
+                       Importe="20000.00"
+                       Descuento="0.00"
+                       ObjetoImp="02">
+            <cfdi:Impuestos>
+                <cfdi:Traslados>
+                    <cfdi:Traslado Base="20000.00" 
+                                   Impuesto="002" 
+                                   TipoFactor="Tasa" 
+                                   TasaOCuota="0.160000" 
+                                   Importe="3200.00"/>
+                </cfdi:Traslados>
+            </cfdi:Impuestos>
+        </cfdi:Concepto>
+    </cfdi:Conceptos>
+    
+    <cfdi:Impuestos TotalImpuestosTrasladados="8000.00">
+        <cfdi:Traslados>
+            <cfdi:Traslado Base="50000.00" 
+                           Impuesto="002" 
+                           TipoFactor="Tasa" 
+                           TasaOCuota="0.160000" 
+                           Importe="8000.00"/>
+        </cfdi:Traslados>
+    </cfdi:Impuestos>
+    
+    <cfdi:Complemento>
+        <tfd:TimbreFiscalDigital xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital"
+                                  xsi:schemaLocation="http://www.sat.gob.mx/TimbreFiscalDigital http://www.sat.gob.mx/sitio_internet/cfd/TimbreFiscalDigital/TimbreFiscalDigitalv11.xsd"
+                                  Version="1.1"
+                                  UUID="A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+                                  FechaTimbrado="2025-01-15T10:31:00"
+                                  RfcProvCertif="SAT970701NN3"
+                                  SelloCFD="..."
+                                  NoCertificadoSAT="00001000000504465028"
+                                  SelloSAT="..."/>
+    </cfdi:Complemento>
+</cfdi:Comprobante>
